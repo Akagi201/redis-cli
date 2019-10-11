@@ -1,16 +1,17 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/go-redis/redis"
-	"github.com/manifoldco/promptui"
-	"github.com/urfave/cli"
-	"github.com/spf13/cast"
 	"github.com/kr/pretty"
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cast"
+	"github.com/urfave/cli"
 	// "github.com/k0kubun/pp"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	var addr string
 	var db int
 	var password string
+	var ssl bool
 
 	app := cli.NewApp()
 
@@ -40,15 +42,26 @@ func main() {
 			Usage:       "`password` for the redis-server to connect",
 			Destination: &password,
 		},
+		cli.BoolFlag{
+			Name:        "ssl, s",
+			Usage:       "ssl for the redis-server to connect",
+			Destination: &ssl,
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
 		log.Printf("Connected to redis-server addr: %v, db: %v, password: %v", addr, db, password)
-		client := redis.NewClient(&redis.Options{
+		opts := &redis.Options{
 			Addr:     addr,
 			Password: password,
 			DB:       db,
-		})
+		}
+		if ssl {
+			opts.TLSConfig = &tls.Config{
+				InsecureSkipVerify: true,
+			}
+		}
+		client := redis.NewClient(opts)
 		defer client.Close()
 
 		for {
@@ -101,10 +114,10 @@ func processRedisCli(client *redis.Client, args ...string) (string, error) {
 		return pretty.Sprint(s), nil
 	case "zrangebyscore":
 		s, err := client.ZRangeByScore(args[1], &redis.ZRangeBy{
-			Min: args[2],
-			Max: args[3],
+			Min:    args[2],
+			Max:    args[3],
 			Offset: cast.ToInt64(args[4]),
-			Count: cast.ToInt64(args[5]),
+			Count:  cast.ToInt64(args[5]),
 		}).Result()
 		if err != nil {
 			return "", err
@@ -112,10 +125,10 @@ func processRedisCli(client *redis.Client, args ...string) (string, error) {
 		return pretty.Sprint(s), nil
 	case "zrangebyscorewithscores":
 		s, err := client.ZRangeByScoreWithScores(args[1], &redis.ZRangeBy{
-			Min: args[2],
-			Max: args[3],
+			Min:    args[2],
+			Max:    args[3],
 			Offset: cast.ToInt64(args[4]),
-			Count: cast.ToInt64(args[5]),
+			Count:  cast.ToInt64(args[5]),
 		}).Result()
 		if err != nil {
 			return "", err
