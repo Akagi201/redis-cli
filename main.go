@@ -7,7 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-redis/redis"
+	"github.com/docker/distribution/context"
+	"github.com/go-redis/redis/v8"
 	"github.com/kr/pretty"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cast"
@@ -101,19 +102,19 @@ func main() {
 func processRedisCli(client *redis.Client, args ...string) (string, error) {
 	switch args[0] {
 	case "zrange":
-		s, err := client.ZRange(args[1], cast.ToInt64(args[2]), cast.ToInt64(args[3])).Result()
+		s, err := client.ZRange(context.Background(), args[1], cast.ToInt64(args[2]), cast.ToInt64(args[3])).Result()
 		if err != nil {
 			return "", err
 		}
 		return pretty.Sprint(s), nil
 	case "zrangewithscores":
-		s, err := client.ZRangeWithScores(args[1], cast.ToInt64(args[2]), cast.ToInt64(args[3])).Result()
+		s, err := client.ZRangeWithScores(context.Background(), args[1], cast.ToInt64(args[2]), cast.ToInt64(args[3])).Result()
 		if err != nil {
 			return "", err
 		}
 		return pretty.Sprint(s), nil
 	case "zrangebyscore":
-		s, err := client.ZRangeByScore(args[1], &redis.ZRangeBy{
+		s, err := client.ZRangeByScore(context.Background(), args[1], &redis.ZRangeBy{
 			Min:    args[2],
 			Max:    args[3],
 			Offset: cast.ToInt64(args[4]),
@@ -124,7 +125,7 @@ func processRedisCli(client *redis.Client, args ...string) (string, error) {
 		}
 		return pretty.Sprint(s), nil
 	case "zrangebyscorewithscores":
-		s, err := client.ZRangeByScoreWithScores(args[1], &redis.ZRangeBy{
+		s, err := client.ZRangeByScoreWithScores(context.Background(), args[1], &redis.ZRangeBy{
 			Min:    args[2],
 			Max:    args[3],
 			Offset: cast.ToInt64(args[4]),
@@ -139,7 +140,7 @@ func processRedisCli(client *redis.Client, args ...string) (string, error) {
 		for i, v := range args {
 			newArgs[i] = v
 		}
-		s, err := client.Do(newArgs...).Result()
+		s, err := client.Do(context.Background(), newArgs...).Result()
 		if err != nil {
 			return "", err
 		}
