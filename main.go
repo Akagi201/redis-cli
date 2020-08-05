@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/docker/distribution/context"
 	"github.com/go-redis/redis/v8"
 	"github.com/kr/pretty"
 	"github.com/manifoldco/promptui"
@@ -67,6 +68,10 @@ func main() {
 
 		for {
 			validate := func(input string) error {
+				args := strings.Fields(input)
+				if len(args) <= 1 {
+					return errors.New("redis cmd len <= 1")
+				}
 				return nil
 			}
 
@@ -85,7 +90,7 @@ func main() {
 			res, err := processRedisCli(client, args...)
 			if err != nil {
 				fmt.Printf("cmd failed %v\n", err)
-				return err
+				continue
 			}
 
 			fmt.Printf("%v\n", res)
