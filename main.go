@@ -69,8 +69,8 @@ func main() {
 		for {
 			validate := func(input string) error {
 				args := strings.Fields(input)
-				if len(args) <= 1 {
-					return errors.New("redis cmd len <= 1")
+				if len(args) < 1 {
+					return errors.New("redis cmd len < 1")
 				}
 				return nil
 			}
