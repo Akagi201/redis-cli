@@ -13,7 +13,7 @@ import (
 	"github.com/kr/pretty"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cast"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	// "github.com/k0kubun/pp"
 )
 
@@ -25,26 +25,30 @@ func main() {
 
 	app := cli.NewApp()
 
+	app.Name = "redis-cli"
+	app.HelpName = "redis-cli"
+	app.Usage = "The portable redis-cli command lint tool"
+
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:        "addr, a",
 			Value:       "127.0.0.1:6379",
 			Usage:       "`address` for the redis-server to connect",
 			Destination: &addr,
 		},
-		cli.IntFlag{
+		&cli.IntFlag{
 			Name:        "db, n",
 			Value:       0,
 			Usage:       "`db` for the redis-server to connect",
 			Destination: &db,
 		},
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:        "password, p",
 			Value:       "",
 			Usage:       "`password` for the redis-server to connect",
 			Destination: &password,
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:        "ssl, s",
 			Usage:       "ssl for the redis-server to connect",
 			Destination: &ssl,
